@@ -17,3 +17,47 @@ Projet de Security Operations Center (SOC) automatisé utilisant :
 ## Architecture
 <img width="799" height="624" alt="image" src="https://github.com/user-attachments/assets/1a39ba97-4a4e-4a46-ae91-1640b74edb6f" />
 
+## structure du projet
+soc-project/
+│
+├── README.md
+├── .gitignore
+├── .env
+│
+├── docs/
+│   ├── architecture/
+│   ├── diagrams/
+│   ├── screenshots/
+│
+├── wazuh/
+│   ├── rules/
+│   ├── decoders/
+│   ├── agents/
+│   └── configs/
+│
+├── shuffle/
+│   ├── workflows/
+│   └── integrations/
+│
+├── ansible/
+│   ├── inventories/
+│   ├── playbooks/
+│   ├── roles/
+│   └── group_vars/
+│
+├── keycloak/
+│   ├── realm-export/
+│   └── configs/
+│
+├── liferay/
+│   ├── dashboards/
+│   └── portal-config/
+│
+├── scripts/
+│   ├── deploy.sh
+│   ├── backup.sh
+│   └── monitoring.sh
+│
+└── docker/
+    ├── docker-compose.yml
+    └── containers/
