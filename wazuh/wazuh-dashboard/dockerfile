@@ -1,0 +1,13 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    gnupg
+
+# installation OpenSearch Dashboards
+RUN wget https://artifacts.opensearch.org/.../opensearch-dashboards.tar.gz
+
+EXPOSE 5601
+
+CMD ["opensearch-dashboards"]

@@ -1,0 +1,39 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ================================
+# 1. Dépendances système
+# ================================
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    apt-transport-https \
+    lsb-release \
+    ca-certificates \
+    net-tools \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# ================================
+# 2. Ajout clé et dépôt Wazuh
+# ================================
+RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+
+RUN echo "deb https://packages.wazuh.com/4.x/apt/ stable main" \
+    > /etc/apt/sources.list.d/wazuh.list
+
+# ================================
+# 3. Installation Wazuh Manager
+# ================================
+RUN apt-get update && apt-get install -y wazuh-manager
+
+# ================================
+# 4. Ports utilisés par Wazuh
+# ================================
+EXPOSE 1514 1515 55000
+
+# ================================
+# 5. Démarrage du service
+# ================================
+CMD ["/var/ossec/bin/wazuh-control", "start"]

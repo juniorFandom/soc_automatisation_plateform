@@ -1,0 +1,26 @@
+FROM ubuntu:22.04
+
+# Variables d'environnement
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Mise à jour et outils de base
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    wget \
+    openjdk-11-jdk \
+    tar
+
+# installation OpenSearch (base SOC)
+RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch/2.11.0/opensearch-2.11.0-linux-x64.tar.gz \
+    && tar -xzf opensearch-2.11.0-linux-x64.tar.gz \
+    && mv opensearch-2.11.0 /usr/local/opensearch
+
+    # nettoyage des fichiers d'installation
+ENV OPENSEARCH_HOME=/usr/local/opensearch
+ENV PATH=$PATH:$OPENSEARCH_HOME/bin
+
+#exposition des ports pour OpenSearch
+EXPOSE 9200 9600
+
+CMD ["bash", "-c", "opensearch"]
