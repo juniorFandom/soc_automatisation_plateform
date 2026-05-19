@@ -1,109 +1,170 @@
 version: "3.9"
 
 services:
-  # 1. NGINX (Reverse Proxy)
 
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - wazuh-dashboard
-      - keycloak
-      - liferay
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/logs:/var/log/nginx
 
-    networks:
-      - soc-net
-
-  # 2. WAZUH MANAGER (SIEM)
+  # ==============================
+  # WAZUH MANAGER
+  # ==============================
 
   wazuh-manager:
     build: ./wazuh-manager
     container_name: wazuh-manager
+    restart: unless-stopped
+
     ports:
       - "1514:1514"
       - "1515:1515"
       - "55000:55000"
+
     volumes:
+
+      # Configuration principale Wazuh
       - ./wazuh/wazuh-manager/config/ossec.conf:/var/ossec/etc/ossec.conf
+
+      # Journaux
       - ./wazuh/wazuh-manager/logs:/var/ossec/logs
+
+      # Données persistantes
+      - ./wazuh/wazuh-manager/data:/var/ossec/data
+
+      # File d’attente événements
+      - ./wazuh/wazuh-manager/queue:/var/ossec/queue
+
     networks:
       - soc-net
 
-  # 3. WAZUH INDEXER (OpenSearch)
+
+  # ==============================
+  # WAZUH INDEXER
+  # ==============================
 
   wazuh-indexer:
     build: ./wazuh-indexer
     container_name: wazuh-indexer
+    restart: unless-stopped
+
     ports:
       - "9200:9200"
       - "9600:9600"
+
     volumes:
+
+      # Configuration OpenSearch
       - ./wazuh/wazuh-indexer/config/opensearch.yml:/usr/local/opensearch/config/opensearch.yml
+
+      # Stockage persistant des données
       - ./wazuh/wazuh-indexer/data:/usr/local/opensearch/data
+
     networks:
       - soc-net
 
-  # 4. WAZUH DASHBOARD
+
+  # ==============================
+  # WAZUH DASHBOARD
+  # ==============================
 
   wazuh-dashboard:
     build: ./wazuh-dashboard
     container_name: wazuh-dashboard
+    restart: always
+
     ports:
       - "5601:5601"
+
     depends_on:
       - wazuh-indexer
+      - wazuh-manager
 
     volumes:
-      - ./wazuh/wazuh-dashboard/config/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+
+      # Configuration Dashboard
+      - ./wazuh/wazuh-dashboard/config/opensearch_dashboards.yml:/usr/local/dashboards/config/opensearch_dashboards.yml
+
     networks:
       - soc-net
 
-  # 5. KEYCLOAK
+
+  # ==============================
+  # KEYCLOAK
+  # ==============================
 
   keycloak:
     build: ./keycloak
     container_name: keycloak
+    restart: unless-stopped
+
     ports:
       - "8080:8080"
 
+    # Import automatique du Realm
+    command: start-dev --import-realm
+
     volumes:
+
+      # Fichier de configuration Realm
       - ./keycloak/config/realm-export.json:/opt/keycloak/data/import/realm-export.json
+
     networks:
       - soc-net
 
-  # 6. LIFERAY (PORTAL SOC)
+
+  # ==============================
+  # LIFERAY
+  # ==============================
 
   liferay:
     build: ./liferay
     container_name: liferay
+    restart: unless-stopped
+
     ports:
       - "8081:8081"
+
+    depends_on:
+      - keycloak
+
     volumes:
+
+      # Configuration Liferay
       - ./liferay/config:/opt/liferay/config
+
+      # Données persistantes
       - ./liferay/data:/opt/liferay/data
+
     networks:
       - soc-net
 
-  #  ANSIBLE (AUTOMATION / SOA)
+
+  # ==============================
+  # ANSIBLE
+  # ==============================
 
   ansible:
     build: ./ansible
     container_name: ansible
+    restart: unless-stopped
+
     volumes:
+
+      # Playbooks
       - ./ansible/playbooks:/ansible/playbooks
-      - ./ansible/inventory:/etc/ansible/hosts
+
+      # Fichier inventory
+      - ./ansible/inventory/hosts:/etc/ansible/hosts
+
+      # Configuration Ansible
       - ./ansible/ansible.cfg:/etc/ansible/ansible.cfg
+
     networks:
       - soc-net
 
-#reseau SOC
+
+# ==============================
+# RESEAU SOC
+# ==============================
+
 networks:
+
   soc-net:
     driver: bridge
