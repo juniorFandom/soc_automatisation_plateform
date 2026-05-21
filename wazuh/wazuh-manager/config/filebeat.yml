@@ -1,0 +1,55 @@
+# ==========================================
+# Nom du collecteur Filebeat
+# ==========================================
+name: wazuh-manager
+
+# ==========================================
+# Fichier de logs surveillé
+# ==========================================
+filebeat.inputs:
+
+- type: log
+  enabled: true
+
+  paths:
+    - /var/ossec/logs/alerts/alerts.json
+
+
+# ==========================================
+# Destination des logs
+# ==========================================
+output.elasticsearch:
+
+  hosts:
+    - "http://wazuh-indexer:9200"
+
+
+# ==========================================
+# Connexion au Dashboard
+# ==========================================
+setup.kibana:
+
+  host: "http://wazuh-dashboard:5601"
+
+
+# ==========================================
+# Modules Filebeat désactivés
+# ==========================================
+filebeat.config.modules:
+
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+
+# ==========================================
+# Niveau des logs Filebeat
+# ==========================================
+logging.level: info
+
+logging.to_files: true
+
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
