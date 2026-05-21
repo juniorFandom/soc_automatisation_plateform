@@ -22,6 +22,9 @@ services:
       # Configuration principale Wazuh
       - ./wazuh/wazuh-manager/config/ossec.conf:/var/ossec/etc/ossec.conf
 
+      #configuration de filebeat
+      - ./wazuh/wazuh-manager/config/filebeat.yml:
+
       # Journaux
       - ./wazuh/wazuh-manager/logs:/var/ossec/logs
 
