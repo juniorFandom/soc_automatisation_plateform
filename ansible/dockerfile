@@ -1,0 +1,28 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Mise à jour et outils de base
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    curl \
+    wget \
+    git \
+    python3 \
+    python3-pip \
+    ssh \
+    sshpass \
+    vim \
+    net-tools \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation Ansible
+RUN apt-add-repository --yes --update ppa:ansible/ansible \
+    && apt-get install -y ansible
+
+# Répertoire de travail
+WORKDIR /ansible
+
+# Commande par défaut
+CMD ["sleep", "infinity"]

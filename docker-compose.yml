@@ -1,0 +1,146 @@
+version: "3.9"
+
+services:
+  # ==============================
+  # WAZUH INDEXER
+  # ==============================
+  wazuh-indexer:
+    build: ./wazuh-indexer
+    container_name: wazuh-indexer
+    restart: unless-stopped
+
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+
+    volumes:
+      - ./wazuh/wazuh-indexer/config/opensearch.yml:/usr/local/opensearch/config/opensearch.yml
+      - ./wazuh/wazuh-indexer/data:/usr/local/opensearch/data
+
+    networks:
+      soc-net:
+        ipv4_address: 172.30.0.10
+
+  # ==============================
+  # WAZUH MANAGER
+  # ==============================
+  wazuh-manager:
+    build: ./wazuh-manager
+    container_name: wazuh-manager
+    restart: unless-stopped
+
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "55000:55000"
+
+    depends_on:
+      - wazuh-indexer
+
+    volumes:
+      - ./wazuh/wazuh-manager/config/ossec.conf:/var/ossec/etc/ossec.conf
+      - ./wazuh/wazuh-manager/config/filebeat.yml:/etc/filebeat/filebeat.yml
+      - ./wazuh/wazuh-manager/logs:/var/ossec/logs
+      - ./wazuh/wazuh-manager/data:/var/ossec/data
+      - ./wazuh/wazuh-manager/queue:/var/ossec/queue
+
+    command: >
+      bash -c "
+      /var/ossec/bin/wazuh-control start &&
+      service filebeat start &&
+      tail -f /dev/null
+      "
+
+    networks:
+      soc-net:
+        ipv4_address: 172.30.0.11
+
+  # ==============================
+  # WAZUH DASHBOARD
+  # ==============================
+  wazuh-dashboard:
+    build: ./wazuh-dashboard
+    container_name: wazuh-dashboard
+    restart: unless-stopped
+
+    ports:
+      - "5601:5601"
+
+    depends_on:
+      - wazuh-indexer
+
+    volumes:
+      - ./wazuh/wazuh-dashboard/config/opensearch_dashboards.yml:/usr/local/dashboards/config/opensearch_dashboards.yml
+
+    networks:
+      soc-net:
+        ipv4_address: 172.30.0.12
+
+  # ==============================
+  # KEYCLOAK
+  # ==============================
+  keycloak:
+    build: ./keycloak
+    container_name: keycloak
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    command: start-dev --import-realm
+
+    volumes:
+      - ./keycloak/config/realm-export.json:/opt/keycloak/data/import/realm-export.json
+
+    networks:
+      soc-net:
+        ipv4_address: 172.30.0.20
+
+  # ==============================
+  # LIFERAY
+  # ==============================
+  liferay:
+    build: ./liferay
+    container_name: liferay
+    restart: unless-stopped
+
+    ports:
+      - "8081:8081"
+
+    depends_on:
+      - keycloak
+
+    volumes:
+      - ./liferay/config:/opt/liferay/config
+      - ./liferay/data:/opt/liferay/data
+
+    networks:
+      soc-net:
+        ipv4_address: 172.30.0.21
+
+  # ==============================
+  # ANSIBLE
+  # ==============================
+  ansible:
+    build: ./ansible
+    container_name: ansible
+    restart: unless-stopped
+
+    volumes:
+      - ./ansible/playbooks:/ansible/playbooks
+      - ./ansible/inventory/hosts:/etc/ansible/hosts
+      - ./ansible/ansible.cfg:/etc/ansible/ansible.cfg
+
+    networks:
+      soc-net:
+        ipv4_address: 172.30.0.30
+
+# ==============================
+# RESEAU SOC AVEC SUBNET FIXE
+# ==============================
+networks:
+  soc-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
