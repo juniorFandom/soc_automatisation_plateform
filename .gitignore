@@ -1,0 +1,70 @@
+
+# ==============================
+# DOCKER
+# ==============================
+*.log
+*.pid
+*.sock
+
+# fichiers Docker inutiles
+docker-compose.override.yml
+
+# ==============================
+# WAZUH
+# ==============================
+wazuh/**/logs/
+wazuh/**/queue/
+wazuh/**/data/
+
+# ==============================
+# OPENSEARCH / INDEXER
+# ==============================
+wazuh-indexer/data/
+wazuh-indexer/logs/
+
+# ==============================
+# LIFERAY
+# ==============================
+liferay/data/
+liferay/logs/
+
+# ==============================
+# KEYCLOAK
+# ==============================
+keycloak/data/
+keycloak/logs/
+
+# ==============================
+# ANSIBLE
+# ==============================
+ansible/*.retry
+ansible/inventory/hosts.backup
+
+# ==============================
+# SYSTEM FILES
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# IDE / EDITORS
+# ==============================
+.vscode/
+.idea/
+
+# ==============================
+# ENV FILES (SENSIBLE)
+# ==============================
+.env
+*.env
+
+# ==============================
+# NODE / FRONTEND (si utilisé plus tard)
+# ==============================
+node_modules/
+
+# ==============================
+# BACKUPS
+# ==============================
+*.bak
+*.backup
