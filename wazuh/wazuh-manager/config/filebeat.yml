@@ -1,55 +1,51 @@
 # ==========================================
-# Nom du collecteur Filebeat
+# Nom de l’instance Filebeat
 # ==========================================
-name: wazuh-manager
+name: wazuh-manager   # Identifie ce Filebeat comme étant celui du Wazuh Manager
 
 # ==========================================
-# Fichier de logs surveillé
+# Entrée des logs (sources à collecter)
 # ==========================================
 filebeat.inputs:
 
-- type: log
-  enabled: true
+- type: log            # Type de données : logs système
+  enabled: true        # Active la collecte
 
   paths:
-    - /var/ossec/logs/alerts/alerts.json
-
+    - /var/ossec/logs/alerts/alerts.json   # Fichier d’alertes généré par Wazuh
 
 # ==========================================
-# Destination des logs
+# Sortie des logs (destination)
 # ==========================================
 output.elasticsearch:
 
   hosts:
-    - "http://wazuh-indexer:9200"
-
+    - "http://wazuh-indexer:9200"   # Envoi des logs vers l’indexer OpenSearch
 
 # ==========================================
-# Connexion au Dashboard
+# Configuration du Dashboard (Kibana / Wazuh Dashboard)
 # ==========================================
 setup.kibana:
 
-  host: "http://wazuh-dashboard:5601"
-
+  host: "http://wazuh-dashboard:5601"   # Lien vers l’interface de visualisation
 
 # ==========================================
-# Modules Filebeat désactivés
+# Modules Filebeat (désactivés ici)
 # ==========================================
 filebeat.config.modules:
 
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
-
+  path: ${path.config}/modules.d/*.yml   # Chemin des modules
+  reload.enabled: false                  # Empêche le rechargement automatique
 
 # ==========================================
-# Niveau des logs Filebeat
+# Gestion des logs internes Filebeat
 # ==========================================
-logging.level: info
+logging.level: info   # Niveau de log (info = standard)
 
-logging.to_files: true
+logging.to_files: true  # Active l’écriture des logs dans des fichiers
 
 logging.files:
-  path: /var/log/filebeat
-  name: filebeat
-  keepfiles: 7
-  permissions: 0644
+  path: /var/log/filebeat   # Dossier de stockage des logs Filebeat
+  name: filebeat            # Nom du fichier de log
+  keepfiles: 7              # Nombre de fichiers logs à conserver
+  permissions: 0644         # Permissions des fichiers logs
