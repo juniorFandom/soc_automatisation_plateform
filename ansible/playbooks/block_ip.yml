@@ -1,0 +1,16 @@
+---
+# Exécution sur le serveur ciblé
+- hosts: soc
+
+  vars:
+
+    
+    ip_address: "{{ suspect_ip }}"
+
+  tasks:
+
+  - name: Bloquer une adresse IP
+
+    shell: |
+
+      iptables -A INPUT -s {{ ip_address }} -j DROP
