@@ -1,0 +1,11 @@
+---
+# Cible Wazuh Manager
+- hosts: wazuh-manager
+
+  tasks:
+
+  - name: Redémarrer Wazuh
+    service:
+
+      name: wazuh-manager
+      state: restarted

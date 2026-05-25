@@ -1,0 +1,9 @@
+---
+# Machines ciblées
+- hosts: soc
+
+  tasks:
+
+  # Vérification de la connexion
+  - name: Tester la connectivité
+    ping:
