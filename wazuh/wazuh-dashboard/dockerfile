@@ -1,13 +1,26 @@
 FROM debian:12-slim
 
+# Éviter les interactions pendant l'installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Installer les dépendances
 RUN apt-get update && apt-get install -y \
-    curl \
     wget \
-    gnupg
+    gnupg2 \
+    tar \
+    && rm -rf /var/lib/apt/lists/*
 
-# installation OpenSearch Dashboards
-RUN wget https://artifacts.opensearch.org/.../opensearch-dashboards.tar.gz
+# Télécharger et installer OpenSearch Dashboards 2.11.0 (compatible avec votre indexer)
+RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/2.11.0/opensearch-dashboards-2.11.0-linux-x64.tar.gz \
+    && tar -xzf opensearch-dashboards-2.11.0-linux-x64.tar.gz -C /usr/share/ \
+    && mv /usr/share/opensearch-dashboards-2.11.0 /usr/share/opensearch-dashboards \
+    && rm opensearch-dashboards-2.11.0-linux-x64.tar.gz
 
+# Créer un utilisateur non-root pour la sécurité
+RUN adduser --system --group --no-create-home opensearch-dashboards
+
+# Exposition du port
 EXPOSE 5601
 
-CMD ["opensearch-dashboards"]
+# Commande de démarrage
+CMD ["/usr/share/opensearch-dashboards/bin/opensearch-dashboards", "--allow-root"]

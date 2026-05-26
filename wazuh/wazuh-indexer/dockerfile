@@ -1,26 +1,41 @@
 FROM debian:12-slim
 
-# Variables d'environnement
 ENV DEBIAN_FRONTEND=noninteractive
+ENV OPENSEARCH_HOME=/usr/local/opensearch
+ENV PATH=$PATH:$OPENSEARCH_HOME/bin
 
 # Mise à jour et outils de base
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     wget \
-    openjdk-11-jdk \
-    tar
+    openjdk-17-jdk \
+    tar \
+    && rm -rf /var/lib/apt/lists/*
 
-# installation OpenSearch (base SOC)
-RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch/2.11.0/opensearch-2.11.0-linux-x64.tar.gz \
-    && tar -xzf opensearch-2.11.0-linux-x64.tar.gz \
-    && mv opensearch-2.11.0 /usr/local/opensearch
+# Copie du fichier local
+COPY opensearch-2.11.0-linux-x64.tar.gz /tmp/
 
-    # nettoyage des fichiers d'installation
-ENV OPENSEARCH_HOME=/usr/local/opensearch
-ENV PATH=$PATH:$OPENSEARCH_HOME/bin
+# Installation OpenSearch
+RUN tar -xzf /tmp/opensearch-2.11.0-linux-x64.tar.gz -C /usr/local/ \
+    && mv /usr/local/opensearch-2.11.0 /usr/local/opensearch \
+    && rm /tmp/opensearch-2.11.0-linux-x64.tar.gz
 
-#exposition des ports pour OpenSearch
-EXPOSE 9200 9600
 
-CMD ["bash", "-c", "opensearch"]
+# CRÉATION DE L'UTILISATEUR NON-ROOT (OBLIGATOIRE sans ca wazuh-indexer ne démarre pas  et ne se connecte pas à OpenSearch  )
+RUN groupadd -r opensearch -g 1000 && \
+    useradd -r -g opensearch -u 1000 -m -s /bin/bash opensearch && \
+    chown -R opensearch:opensearch /usr/local/opensearch
+
+
+# Configuration mémoire
+RUN echo "-Xms512m" > /usr/local/opensearch/config/jvm.options && \
+    echo "-Xmx512m" >> /usr/local/opensearch/config/jvm.options
+
+
+# BASCULE VERS L'UTILISATEUR NON-ROOT
+USER opensearch
+
+EXPOSE 9200 9300 9600
+
+CMD ["opensearch"]
