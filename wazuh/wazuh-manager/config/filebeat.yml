@@ -1,103 +1,68 @@
-# ==========================================
-# Nom du collecteur Filebeat
-# ==========================================
 name: wazuh-manager
 
-# ==========================================
-# Fichier de logs surveillé
-# ==========================================
+# =========================
+# INPUT WAZUH ALERTS
+# =========================
 filebeat.inputs:
-
-- type: log
-  enabled: true
-  paths:
-    - /var/ossec/logs/alerts/alerts.json
-  
-  # Tags pour identifier la source
-  tags: ["wazuh", "alerts"]
-  
-  # JSON parsing pour les alertes Wazuh
-  json.keys_under_root: true
-  json.add_error_key: true
-  json.message_key: log
-
-# ==========================================
-# Module Wazuh (recommandé pour meilleure structure)
-# ==========================================
-filebeat.modules:
-- module: wazuh
-  alerts:
+  - type: log
     enabled: true
-    input:
-      enabled: false  # Désactivé car on utilise filebeat.inputs
-  archives:
-    enabled: false
+    paths:
+      - /var/ossec/logs/alerts/alerts.json
 
-# ==========================
-# Templates pour OpenSearch 
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: log
+
+
+# =========================
+# OUTPUT : WAZUH INDEXER (OPENSEARCH)
+# =========================
+output.elasticsearch:
+  hosts: ["https://wazuh-indexer:9200"]
+
+  username: admin
+  password: admin
+
+  # IMPORTANT : compat OpenSearch / Wazuh
+  allow_older_versions: true
+
+  ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]
+  ssl.verification_mode: certificate
+
+  # index custom Wazuh
+  index: "wazuh-alerts-%{+yyyy.MM.dd}"
+
+
+# =========================
+# CRITICAL FIX (évite _license / _xpack errors)
+# =========================
+setup.ilm.enabled: false
+setup.ilm.check_exists: false
+setup.ilm.overwrite: false
+
+setup.xpack.enabled: false
+
+
+# =========================
+# TEMPLATE INDEX (WAZUH SAFE)
 # =========================
 setup.template.enabled: true
 setup.template.name: "wazuh-alerts"
 setup.template.pattern: "wazuh-alerts-*"
+
 setup.template.settings:
   index.number_of_shards: 1
   index.number_of_replicas: 0
 
-# ==========================================
-# DESTINATION: OpenSearch (Wazuh Indexer)
-# ==========================================
-output.opensearch:
-  # Connexion à l'indexer
-  hosts: ["https://wazuh-indexer:9200"]
-  
-  # Authentification obligatoire
-  username: "admin"
-  password: "admin"
-  
-  # Index de destination
-  index: "wazuh-alerts-%{+yyyy.MM.dd}"
-  
-  # Configuration SSL (certificats auto-signés)
-  ssl.verification_mode: "none"
-  ssl.certificate_authorities:
-    - "/etc/filebeat/certs/root-ca.pem"
-  
-  # Paramètres de connexion
-  worker: 1
-  bulk_max_size: 50
-  timeout: 90
 
-# ==========================================
-# Optionnel: Dashboard (si besoin)
-# ==========================================
-setup.kibana:
-  host: "https://wazuh-dashboard:443"
-  username: "admin"
-  password: "admin"
-  ssl.verification_mode: "none"
+# =========================
+# DISABLE MONITORING (IMPORTANT)
+# =========================
+monitoring.enabled: false
+xpack.monitoring.enabled: false
 
-# ==========================================
-# Configuration des modules (désactivée par défaut)
-# ==========================================
-filebeat.config.modules:
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
-  reload.period: 10s
 
-# ==========================================
-# Niveau des logs Filebeat
-# ==========================================
+# =========================
+# LOGGING
+# =========================
 logging.level: info
-logging.to_files: true
-logging.files:
-  path: /var/log/filebeat
-  name: filebeat
-  keepfiles: 7
-  permissions: 0644
-
-# ==========================================
-# Métriques internes
-# ==========================================
-http.enabled: true
-http.host: localhost
-http.port: 5066

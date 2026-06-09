@@ -1,0 +1,43 @@
+---
+- name: Tester la connectivité suite à une alerte Wazuh
+  hosts: localhost
+  gather_facts: no
+  
+  vars:
+    rule_id: "{{ rule_id | default('unknown') }}"
+    source_ip: "{{ ip | default('0.0.0.0') }}"
+    agent_name: "{{ agent_name | default('unknown') }}"
+  
+  tasks:
+    - name: Afficher les informations de l'alerte
+      debug:
+        msg: |
+          ========================================
+           REÇUE DE WAZUH
+          ========================================
+           Règle ID: {{ rule_id }}
+           IP source: {{ source_ip }}
+           Agent concerné: {{ agent_name }}
+           Timestamp: {{ ansible_date_time.iso8601 }}
+          ========================================
+    
+    - name: Tester le ping vers l'IP source
+      command: ping -c 3 172.25.0.10 # ip de l'indexer
+      register: ping_result
+      ignore_errors: yes
+      
+    - name: Afficher le résultat du ping
+      debug:
+        msg: |
+          ========================================
+           RÉSULTAT DU PING
+          ========================================
+          {% if ping_result.rc == 0 %}
+           L'IP {{ source_ip }} est ACCESSIBLE
+           Statistiques: {{ ping_result.stdout | regex_replace('\n', '\n  ') }}
+          {% else %}
+           L'IP {{ source_ip }} est INACCESSIBLE
+           Erreur: {{ ping_result.stderr | default(ping_result.msg) }}
+          {% endif %}
+          ========================================
+    

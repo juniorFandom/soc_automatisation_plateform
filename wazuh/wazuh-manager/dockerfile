@@ -1,44 +1,78 @@
 FROM debian:12-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV FILEBEAT_VERSION=7.10.2
 
-# ==========================================
-# 1. Installation des dépendances système
-# ==========================================
+# =========================
+# 1. BASE SYSTEM
+# =========================
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     apt-transport-https \
-    lsb-release \
     ca-certificates \
-    net-tools \
-    vim \
+    lsb-release \
     wget \
+    tar \
+    bash \
     procps \
-    && rm -rf /var/lib/apt/lists/*
+    net-tools \
+    python3 \
+    python3-pip \
+    && apt-get clean
 
-# ==========================================
-# 2. Ajout clé et dépôt Wazuh
-# ==========================================
-RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --dearmor > /usr/share/keyrings/wazuh.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" > /etc/apt/sources.list.d/wazuh.list
+# =========================
+# 2. WAZUH GPG KEY
+# =========================
+RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring \
+    --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import \
+    && chmod 644 /usr/share/keyrings/wazuh.gpg
 
-# ==========================================
-# 3. Installation Wazuh Manager
-# ==========================================
-RUN apt-get update && apt-get install -y wazuh-manager
+# =========================
+# 3. WAZUH REPOSITORY
+# =========================
+RUN echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
+    > /etc/apt/sources.list.d/wazuh.list
 
-# ==========================================
-# 4. Installation Filebeat (version compatible)
-# ==========================================
-RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${FILEBEAT_VERSION}-amd64.deb && \
-    dpkg -i filebeat-${FILEBEAT_VERSION}-amd64.deb && \
-    rm filebeat-${FILEBEAT_VERSION}-amd64.deb
+RUN apt-get update
 
-# ==========================================
-# 7. Ports utilisés
-# ==========================================
-EXPOSE 1514 1515 55000
+# =========================
+# 4. INSTALL WAZUH MANAGER + FILEBEAT
+# =========================
+RUN apt-get install -y wazuh-manager filebeat
 
-CMD ["/usr/bin/wazuh-manager"]
+
+# IMPORTANT: template Wazuh
+RUN curl -so /etc/filebeat/wazuh-template.json \
+    https://raw.githubusercontent.com/wazuh/wazuh/v4.14.5/extensions/elasticsearch/7.x/wazuh-template.json
+
+RUN chmod go+r /etc/filebeat/wazuh-template.json
+
+# Wazuh module for Filebeat
+RUN curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.5.tar.gz \
+    | tar -xvz -C /usr/share/filebeat/module
+
+# =========================
+# 6. FILEBEAT KEYSTORE (AUTH)
+# =========================
+RUN filebeat keystore create || true
+
+# =========================
+# 7. CERTS DIRECTORY
+# =========================
+RUN mkdir -p /etc/filebeat/certs
+
+# =========================
+# 8. COPY START SCRIPT
+# =========================
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# =========================
+# 9. PORTS WAZUH MANAGER
+# =========================
+EXPOSE 1514 1515 1516 55000
+
+# =========================
+# 10. START CONTAINER
+# =========================
+CMD ["/start.sh"]

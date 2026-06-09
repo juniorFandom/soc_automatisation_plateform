@@ -21,6 +21,9 @@ wazuh/**/data/
 # ==============================
 wazuh-indexer/data/
 wazuh-indexer/logs/
+wazuh-certificates/
+wazuh/certs
+ansible/certs
 
 # ==============================
 # LIFERAY

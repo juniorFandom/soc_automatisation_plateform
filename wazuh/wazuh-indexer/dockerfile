@@ -1,41 +1,89 @@
 FROM debian:12-slim
 
+# =========================
+# ENV VARIABLES
+# =========================
 ENV DEBIAN_FRONTEND=noninteractive
-ENV OPENSEARCH_HOME=/usr/local/opensearch
-ENV PATH=$PATH:$OPENSEARCH_HOME/bin
+ENV OPENSEARCH_JAVA_OPTS="-Xms1g -Xmx1g"
 
-# Mise à jour et outils de base
+# =========================
+# BASE DEPENDENCIES
+# =========================
 RUN apt-get update && apt-get install -y \
     curl \
+    bash \
+    procps \
     gnupg \
-    wget \
-    openjdk-17-jdk \
+    ca-certificates \
+    openjdk-17-jre-headless \
     tar \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copie du fichier local
-COPY opensearch-2.11.0-linux-x64.tar.gz /tmp/
+# =========================
+# WAZUH REPOSITORY
+# =========================
+RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH \
+    | gpg --dearmor > /usr/share/keyrings/wazuh.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
+    > /etc/apt/sources.list.d/wazuh.list && \
+    apt-get update
 
-# Installation OpenSearch
-RUN tar -xzf /tmp/opensearch-2.11.0-linux-x64.tar.gz -C /usr/local/ \
-    && mv /usr/local/opensearch-2.11.0 /usr/local/opensearch \
-    && rm /tmp/opensearch-2.11.0-linux-x64.tar.gz
+# =========================
+# INSTALL WAZUH INDEXER
+# =========================
+RUN apt-get install -y wazuh-indexer
+
+# =========================
+# DIRECTORIES
+# =========================
+RUN mkdir -p \
+    /etc/wazuh-indexer/certs \
+    /var/lib/wazuh-indexer \
+    /var/log/wazuh-indexer
+
+# =========================
+# SECURITY CONFIG
+# =========================
+COPY security/ /usr/share/wazuh-indexer/opensearch-security/
+
+# =========================
+# OPENSEARCH CONFIG
+# =========================
+COPY config/opensearch.yml /etc/wazuh-indexer/opensearch.yml
+
+# =========================
+# ENTRYPOINT
+# =========================
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
 
 
-# CRÉATION DE L'UTILISATEUR NON-ROOT (OBLIGATOIRE sans ca wazuh-indexer ne démarre pas  et ne se connecte pas à OpenSearch  )
-RUN groupadd -r opensearch -g 1000 && \
-    useradd -r -g opensearch -u 1000 -m -s /bin/bash opensearch && \
-    chown -R opensearch:opensearch /usr/local/opensearch
+# Données et logs
+RUN chown -R wazuh-indexer:wazuh-indexer \
+    /var/lib/wazuh-indexer \
+    /var/log/wazuh-indexer \
+    /etc/wazuh-indexer
 
+# IMPORTANT
+# opensearch-env lit ce fichier au démarrage
+RUN chmod 644 /etc/default/wazuh-indexer
 
-# Configuration mémoire
-RUN echo "-Xms512m" > /usr/local/opensearch/config/jvm.options && \
-    echo "-Xmx512m" >> /usr/local/opensearch/config/jvm.options
+# Vérification pendant le build
+RUN ls -l /etc/default/wazuh-indexer
 
+# =========================
+# USER
+# =========================
+USER wazuh-indexer
 
-# BASCULE VERS L'UTILISATEUR NON-ROOT
-USER opensearch
+# =========================
+# PORTS
+# =========================
+EXPOSE 9200 9300
 
-EXPOSE 9200 9300 9600
-
-CMD ["opensearch"]
+# =========================
+# START
+# =========================
+ENTRYPOINT ["/entrypoint.sh"]

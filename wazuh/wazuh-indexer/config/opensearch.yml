@@ -1,9 +1,24 @@
-cluster.name: soc-cluster
-node.name: wazuh-indexer
-
 network.host: 0.0.0.0
-http.port: 9200
+
+node.name: wazuh-indexer
+cluster.name: soc-cluster
 
 discovery.type: single-node
+discovery.seed_hosts: ["wazuh-indexer"]
 
-plugins.security.disabled: true
+plugins.security.ssl.http.enabled: true
+plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
+plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
+plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
+
+plugins.security.ssl.transport.enabled: true
+plugins.security.ssl.transport.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
+plugins.security.ssl.transport.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
+plugins.security.ssl.transport.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
+
+plugins.security.authcz.admin_dn:
+  - "CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US"
+
+plugins.security.nodes_dn:
+  - "CN=wazuh-indexer"
+
