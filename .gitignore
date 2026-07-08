@@ -23,7 +23,7 @@ wazuh/wazuh-indexer/*.tar.gz
 wazuh/wazuh-dashboard/*.tar.gz
 wazuh/wazuh-manager/logs/
 wazuh/wazuh-manager/queue/db/
-wazuh/wazuh-manager/queue/
+wazuh/wazuh-manager/queue/*
 wazuh/certs/
 # Python
 __pycache__/
