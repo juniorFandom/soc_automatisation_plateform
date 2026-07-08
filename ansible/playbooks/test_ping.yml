@@ -13,8 +13,6 @@
       debug:
         msg: |
           ========================================
-           REÇUE DE WAZUH
-          ========================================
            Règle ID: {{ rule_id }}
            IP source: {{ source_ip }}
            Agent concerné: {{ agent_name }}

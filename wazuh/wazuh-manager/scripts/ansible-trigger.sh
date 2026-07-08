@@ -8,7 +8,7 @@ ALERT_LEVEL="${2:-0}"
 SOURCE_IP="${3:-0.0.0.0}"
 EXTRA_INFO="${4:-none}"
 
-# Nom du conteneur Ansible (doit correspondre à votre docker-compose)
+# Nom du conteneur Ansible 
 ANSIBLE_CONTAINER="ansible"
 
 # Log de début

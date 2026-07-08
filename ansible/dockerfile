@@ -5,9 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
 # Variables d'environnement pour la connexion au Wazuh Manager
-ENV WAZUH_MANAGER_IP=172.25.0.30   
-ENV WAZUH_AUTH_PORT=1515           
-ENV WAZUH_AGENT_PASSWORD=MonPasse   
+# ENV WAZUH_MANAGER_IP=172.25.0.30   
+# ENV WAZUH_AUTH_PORT=1515           
+# ENV WAZUH_AGENT_PASSWORD=MonPasse   
 
 # Installation des dépendances système
 RUN apt-get update && apt-get install -y \
@@ -30,10 +30,6 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     && rm -rf /var/lib/apt/lists/*
 
-# ============================================
-# Installation de l'agent Wazuh
-# ============================================
-
 # Ajout de la clé GPG et du dépôt Wazuh
 RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import \
     && chmod 644 /usr/share/keyrings/wazuh.gpg \
@@ -45,10 +41,6 @@ RUN apt-get update && apt-get install -y wazuh-agent \
 
 # Copie du certificat de l'autorité (CA) pour vérifier le manager
 COPY certificat/root-ca.pem /var/ossec/etc/root-ca.pem
-
-# ============================================
-# Installation d'Ansible 
-# ============================================
 
 RUN pip3 install --no-cache-dir --break-system-packages \
     ansible==8.0.0 \

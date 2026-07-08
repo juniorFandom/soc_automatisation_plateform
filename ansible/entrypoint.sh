@@ -13,9 +13,9 @@ echo "=========================================="
 # Configuration de l'agent Wazuh
 # ============================================
 
-WAZUH_MANAGER_IP="${WAZUH_MANAGER_IP:-172.25.0.30}"
-WAZUH_AUTH_PORT="${WAZUH_AUTH_PORT:-1515}"
-WAZUH_AGENT_PASSWORD="${WAZUH_AGENT_PASSWORD:-MonPasse}"
+WAZUH_MANAGER_IP="${WAZUH_MANAGER_IP}"
+WAZUH_AUTH_PORT="${WAZUH_AUTH_PORT}"
+WAZUH_AGENT_PASSWORD="${WAZUH_AGENT_PASSWORD}"
 
 # Enrôler l'agent s'il n'est pas déjà enregistré (vérifie que le fichier n'est pas vide)
 if [ ! -s /var/ossec/etc/client.keys ]; then

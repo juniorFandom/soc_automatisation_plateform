@@ -23,7 +23,6 @@ Les principales fonctionnalités incluent :
 Projet de Security Operations Center (SOC) automatisé utilisant :
 
 - Wazuh (SIEM/XDR)
-- Shuffle (SOAR)
 - Ansible (Automation)
 - Keycloak (IAM/SSO)
 - Liferay (Dashboard)
@@ -83,5 +82,7 @@ soc-project/
 │
 └── docker/
 ├── docker-compose.yml
-└── containers/
+└── containers
+
+pour lancer le prrojet, les etapes suivantes doivent etre suivies:
 

@@ -73,14 +73,11 @@ RUN chmod 644 /etc/default/wazuh-indexer
 # Vérification pendant le build
 RUN ls -l /etc/default/wazuh-indexer
 
-# =========================
+
 # USER
-# =========================
 USER wazuh-indexer
 
-# =========================
 # PORTS
-# =========================
 EXPOSE 9200 9300
 
 # =========================

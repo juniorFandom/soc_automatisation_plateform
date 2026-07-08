@@ -15,6 +15,9 @@ docker-compose.override.yml
 wazuh/**/logs/
 wazuh/**/queue/
 wazuh/**/data/
+wazuh/wazuh-dashboard/*.tar.gz
+wazuh/wazuh-indexer/*.tar.gz
+wazuh/wazuh-indexer/plugins/opensearch-security/securityconfig.tar.gz
 
 # ==============================
 # OPENSEARCH / INDEXER
@@ -42,6 +45,8 @@ keycloak/logs/
 # ==============================
 ansible/*.retry
 ansible/inventory/hosts.backup
+ansible/inventory/hosts.ini
+ansible/playbooks
 
 # ==============================
 # SYSTEM FILES
@@ -60,11 +65,6 @@ Thumbs.db
 # ==============================
 .env
 *.env
-
-# ==============================
-# NODE / FRONTEND (si utilisé plus tard)
-# ==============================
-node_modules/
 
 # ==============================
 # BACKUPS

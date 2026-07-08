@@ -146,6 +146,11 @@ services:
       - ./ansible/ansible.cfg:/etc/ansible/ansible.cfg:ro
       # - ./ansible/certificats:/ansible/var/
     working_dir: /ansible
+
+    environment:
+      - WAZUH_MANAGER_IP: ${WAZUH_MANAGER_IP}
+      - WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
+      - WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
     networks:
       wazuh-net:
         ipv4_address: 172.25.0.40
