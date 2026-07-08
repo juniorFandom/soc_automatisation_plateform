@@ -1,13 +1,24 @@
 FROM debian:12-slim
+<<<<<<< HEAD
+=======
+
+ENV DEBIAN_FRONTEND=noninteractive
+>>>>>>> dev
 
 RUN apt-get update && apt-get install -y \
-    curl \
+    tar \
+    gnupg2 \
     wget \
-    gnupg
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# installation OpenSearch Dashboards
-RUN wget https://artifacts.opensearch.org/.../opensearch-dashboards.tar.gz
+# COPY opensearch-dashboards-2.11.0-linux-x64.tar.gz /tmp/
+RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/2.11.0/opensearch-dashboards-2.11.0-linux-x64.tar.gz
+
+RUN tar -xzf /tmp/opensearch-dashboards-2.11.0-linux-x64.tar.gz -C /usr/share/ \
+    && mv /usr/share/opensearch-dashboards-2.11.0 /usr/share/opensearch-dashboards \
+    && rm /tmp/opensearch-dashboards-2.11.0-linux-x64.tar.gz
 
 EXPOSE 5601
 
-CMD ["opensearch-dashboards"]
+CMD ["/usr/share/opensearch-dashboards/bin/opensearch-dashboards", "--allow-root"]

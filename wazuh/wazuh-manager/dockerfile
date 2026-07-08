@@ -2,45 +2,77 @@ FROM debian:12-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# ==========================================
-# 1. Installation des dépendances système
-# ==========================================
+# =========================
+# 1. BASE SYSTEM
+# =========================
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     apt-transport-https \
-    lsb-release \
     ca-certificates \
-    net-tools \
-    vim \
+    lsb-release \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    tar \
+    bash \
+    procps \
+    net-tools \
+    python3 \
+    python3-pip \
+    && apt-get clean
 
-# ==========================================
-# 2. Ajout clé et dépôt Wazuh
-# ==========================================
-RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+# =========================
+# 2. WAZUH GPG KEY
+# =========================
+RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring \
+    --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import \
+    && chmod 644 /usr/share/keyrings/wazuh.gpg
 
-RUN echo "deb https://packages.wazuh.com/4.x/apt/ stable main" \
+# =========================
+# 3. WAZUH REPOSITORY
+# =========================
+RUN echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
     > /etc/apt/sources.list.d/wazuh.list
 
-# ==========================================
-# 3. Installation Wazuh Manager
-# ==========================================
-RUN apt-get update && apt-get install -y wazuh-manager
+RUN apt-get update
 
-# ==========================================
-# 4. Installation Filebeat
-# ==========================================
-RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb \
-    && dpkg -i filebeat-8.13.4-amd64.deb
+# =========================
+# 4. INSTALL WAZUH MANAGER + FILEBEAT
+# =========================
+RUN apt-get install -y wazuh-manager filebeat
 
-# ==========================================
-# 5. Ports utilisés
-# ==========================================
-EXPOSE 1514 1515 55000
 
-# ================================
-# 6. Démarrage du service
-# ================================
-CMD ["/var/ossec/bin/wazuh-control", "start"]
+# IMPORTANT: template Wazuh
+RUN curl -so /etc/filebeat/wazuh-template.json \
+    https://raw.githubusercontent.com/wazuh/wazuh/v4.14.5/extensions/elasticsearch/7.x/wazuh-template.json
+
+RUN chmod go+r /etc/filebeat/wazuh-template.json
+
+# Wazuh module for Filebeat
+RUN curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.5.tar.gz \
+    | tar -xvz -C /usr/share/filebeat/module
+
+# =========================
+# 6. FILEBEAT KEYSTORE (AUTH)
+# =========================
+RUN filebeat keystore create || true
+
+# =========================
+# 7. CERTS DIRECTORY
+# =========================
+RUN mkdir -p /etc/filebeat/certs
+
+# =========================
+# 8. COPY START SCRIPT
+# =========================
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# =========================
+# 9. PORTS WAZUH MANAGER
+# =========================
+EXPOSE 1514 1515 1516 55000
+
+# =========================
+# 10. START CONTAINER
+# =========================
+CMD ["/start.sh"]

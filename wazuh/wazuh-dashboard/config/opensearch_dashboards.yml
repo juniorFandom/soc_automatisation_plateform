@@ -1,11 +1,35 @@
-server.host: "0.0.0.0"
+
+# Adresse d’écoute du dashboard
+server.host: "0.0.0.0"   # accessible depuis toutes les interfaces réseau
+
+# Port d’accès au dashboard
 server.port: 5601
 
+# Activation du HTTPS pour sécuriser l’interface web
+server.ssl.enabled: true
+
+# Certificat SSL du dashboard (identité serveur)
+server.ssl.certificate: /usr/share/wazuh-dashboard/certs/dashboard.pem
+
+# Clé privée associée au certificat
+server.ssl.key: /usr/share/wazuh-dashboard/certs/dashboard-key.pem
+
+# Adresse de l’indexer OpenSearch (backend des données Wazuh)
 opensearch.hosts: ["https://wazuh-indexer:9200"]
 
-opensearch.ssl.verificationMode: none
 
-opensearch.username: "admin"
-opensearch.password: "admin"
+# ===================== AUTHENTIFICATION =====================
 
-server.name: wazuh-dashboard
+# Identifiants admin pour accéder à OpenSearch
+opensearch.username: admin
+opensearch.password: admin
+
+
+# ===================== SSL VERIFICATION =====================
+
+# Mode de vérification SSL
+# "certificate" = vérifie le certificat serveur sans validation stricte de CA complète
+opensearch.ssl.verificationMode: certificate
+
+# Autorité de certification (CA) pour valider le certificat de l’indexer
+opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]

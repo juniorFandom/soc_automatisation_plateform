@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ==========================================
 # Nom de l’instance Filebeat
 # ==========================================
@@ -6,8 +7,20 @@ name: wazuh-manager   # Identifie ce Filebeat comme étant celui du Wazuh Manage
 # ==========================================
 # Entrée des logs (sources à collecter)
 # ==========================================
-filebeat.inputs:
+=======
+name: wazuh-manager
 
+# =========================
+# INPUT WAZUH ALERTS
+# =========================
+>>>>>>> dev
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/ossec/logs/alerts/alerts.json
+
+<<<<<<< HEAD
 - type: log            # Type de données : logs système
   enabled: true        # Active la collecte
 
@@ -17,8 +30,20 @@ filebeat.inputs:
 # ==========================================
 # Sortie des logs (destination)
 # ==========================================
-output.elasticsearch:
+=======
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: log
 
+
+# =========================
+# OUTPUT : WAZUH INDEXER (OPENSEARCH)
+# =========================
+>>>>>>> dev
+output.elasticsearch:
+  hosts: ["https://wazuh-indexer:9200"]
+
+<<<<<<< HEAD
   hosts:
     - "http://wazuh-indexer:9200"   # Envoi des logs vers l’indexer OpenSearch
 
@@ -49,3 +74,51 @@ logging.files:
   name: filebeat            # Nom du fichier de log
   keepfiles: 7              # Nombre de fichiers logs à conserver
   permissions: 0644         # Permissions des fichiers logs
+=======
+  username: admin
+  password: admin
+
+  # IMPORTANT : compat OpenSearch / Wazuh
+  allow_older_versions: true
+
+  ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]
+  ssl.verification_mode: certificate
+
+  # index custom Wazuh
+  index: "wazuh-alerts-%{+yyyy.MM.dd}"
+
+
+# =========================
+# CRITICAL FIX (évite _license / _xpack errors)
+# =========================
+setup.ilm.enabled: false
+setup.ilm.check_exists: false
+setup.ilm.overwrite: false
+
+setup.xpack.enabled: false
+
+
+# =========================
+# TEMPLATE INDEX (WAZUH SAFE)
+# =========================
+setup.template.enabled: true
+setup.template.name: "wazuh-alerts"
+setup.template.pattern: "wazuh-alerts-*"
+
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
+
+
+# =========================
+# DISABLE MONITORING (IMPORTANT)
+# =========================
+monitoring.enabled: false
+xpack.monitoring.enabled: false
+
+
+# =========================
+# LOGGING
+# =========================
+logging.level: info
+>>>>>>> dev

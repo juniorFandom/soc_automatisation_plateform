@@ -1,26 +1,86 @@
 FROM debian:12-slim
 
-# Variables d'environnement
+# =========================
+# ENV VARIABLES
+# =========================
 ENV DEBIAN_FRONTEND=noninteractive
+ENV OPENSEARCH_JAVA_OPTS="-Xms1g -Xmx1g"
 
-# Mise à jour et outils de base
+# =========================
+# BASE DEPENDENCIES
+# =========================
 RUN apt-get update && apt-get install -y \
     curl \
+    bash \
+    procps \
     gnupg \
-    wget \
-    openjdk-11-jdk \
-    tar
+    ca-certificates \
+    openjdk-17-jre-headless \
+    tar \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# installation OpenSearch (base SOC)
-RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch/2.11.0/opensearch-2.11.0-linux-x64.tar.gz \
-    && tar -xzf opensearch-2.11.0-linux-x64.tar.gz \
-    && mv opensearch-2.11.0 /usr/local/opensearch
+# =========================
+# WAZUH REPOSITORY
+# =========================
+RUN curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH \
+    | gpg --dearmor > /usr/share/keyrings/wazuh.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
+    > /etc/apt/sources.list.d/wazuh.list && \
+    apt-get update
 
-    # nettoyage des fichiers d'installation
-ENV OPENSEARCH_HOME=/usr/local/opensearch
-ENV PATH=$PATH:$OPENSEARCH_HOME/bin
+# =========================
+# INSTALL WAZUH INDEXER
+# =========================
+RUN apt-get install -y wazuh-indexer
 
-#exposition des ports pour OpenSearch
-EXPOSE 9200 9600
+# =========================
+# DIRECTORIES
+# =========================
+RUN mkdir -p \
+    /etc/wazuh-indexer/certs \
+    /var/lib/wazuh-indexer \
+    /var/log/wazuh-indexer
 
-CMD ["bash", "-c", "opensearch"]
+# =========================
+# SECURITY CONFIG
+# =========================
+COPY security/ /usr/share/wazuh-indexer/opensearch-security/
+
+# =========================
+# OPENSEARCH CONFIG
+# =========================
+COPY config/opensearch.yml /etc/wazuh-indexer/opensearch.yml
+
+# =========================
+# ENTRYPOINT
+# =========================
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+
+# Données et logs
+RUN chown -R wazuh-indexer:wazuh-indexer \
+    /var/lib/wazuh-indexer \
+    /var/log/wazuh-indexer \
+    /etc/wazuh-indexer
+
+# IMPORTANT
+# opensearch-env lit ce fichier au démarrage
+RUN chmod 644 /etc/default/wazuh-indexer
+
+# Vérification pendant le build
+RUN ls -l /etc/default/wazuh-indexer
+
+
+# USER
+USER wazuh-indexer
+
+# PORTS
+EXPOSE 9200 9300
+
+# =========================
+# START
+# =========================
+ENTRYPOINT ["/entrypoint.sh"]

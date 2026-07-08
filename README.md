@@ -1,11 +1,28 @@
 # soc_automatisation_plateform
 
-Ce projet consiste à concevoir et déployer une plateforme SOC (Security Operations Center) moderne permettant la surveillance, la détection et la réponse automatisée aux incidents de cybersécurité au sein d’un système d’information.
+Description
+
+Cette plateforme SOC automatisée vise à fournir une solution complète pour la surveillance, la détection, l'investigation et la réponse aux incidents de sécurité. Le projet intègre des composants open-source et des outils d'automatisation pour permettre :
+
+- la collecte et l'analyse centralisée des logs et évènements (Wazuh),
+- l'orchestration et l'automatisation des procédures de remédiation ( Ansible),
+- la gestion des identités et des accès (Keycloak),
+- la visualisation et le reporting via un portail de tableaux de bord (Liferay).
+
+Le but est de réduire le délai de détection et de réponse (MTTD/MTTR), d'améliorer la traçabilité des actions et de faciliter le déploiement et la gestion des règles de sécurité dans des environnements hétérogènes.
+
+Les principales fonctionnalités incluent :
+
+- ingestion et corrélation d'événements,
+- génération d'alertes et enrichissement automatique des incidents,
+- playbooks automatisés pour la réponse aux incidents,
+- gestion centralisée des configurations et déploiement via Ansible,
+- authentification unique et gestion des rôles avec Keycloak,
+- tableaux de bord personnalisables pour le suivi des indicateurs de sécurité.
 
 Projet de Security Operations Center (SOC) automatisé utilisant :
 
 - Wazuh (SIEM/XDR)
-- Shuffle (SOAR)
 - Ansible (Automation)
 - Keycloak (IAM/SSO)
 - Liferay (Dashboard)
@@ -65,4 +82,7 @@ soc-project/
 │
 └── docker/
 ├── docker-compose.yml
-└── containers/
+└── containers
+
+pour lancer le prrojet, les etapes suivantes doivent etre suivies:
+
