@@ -5,7 +5,7 @@ Description
 Cette plateforme SOC automatisée vise à fournir une solution complète pour la surveillance, la détection, l'investigation et la réponse aux incidents de sécurité. Le projet intègre des composants open-source et des outils d'automatisation pour permettre :
 
 - la collecte et l'analyse centralisée des logs et évènements (Wazuh),
-- l'orchestration et l'automatisation des procédures de remédiation (Shuffle, Ansible),
+- l'orchestration et l'automatisation des procédures de remédiation ( Ansible),
 - la gestion des identités et des accès (Keycloak),
 - la visualisation et le reporting via un portail de tableaux de bord (Liferay).
 
