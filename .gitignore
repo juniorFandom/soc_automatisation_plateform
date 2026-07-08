@@ -18,6 +18,7 @@ wazuh/**/data/
 wazuh/wazuh-dashboard/*.tar.gz
 wazuh/wazuh-indexer/*.tar.gz
 wazuh/wazuh-indexer/plugins/opensearch-security/securityconfig.tar.gz
+wazuh/wazuh-manager/logs/*
 
 # ==============================
 # OPENSEARCH / INDEXER
@@ -46,7 +47,7 @@ keycloak/logs/
 ansible/*.retry
 ansible/inventory/hosts.backup
 ansible/inventory/hosts.ini
-ansible/playbooks
+ansible/playbooks/*.yml
 
 # ==============================
 # SYSTEM FILES
