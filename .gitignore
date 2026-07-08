@@ -1,44 +1,50 @@
+# Create .gitignore file with proper exclusions
+@"
+# Large binary files
+*.tar.gz
+*.tar
+*.zip
+*.gz
+*.rar
+*.7z
 
+# Logs
+logs/
 *.log
-*.pid
-*.sock
+*.json
 
-# fichiers Docker inutiles
-docker-compose.override.yml
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
-# ==============================
-# WAZUH
-# ==============================
-wazuh/**/logs/
-wazuh/**/queue/
-wazuh/**/data/
-wazuh/wazuh-dashboard/*.tar.gz
+# Wazuh specific
 wazuh/wazuh-indexer/*.tar.gz
-wazuh/wazuh-indexer/plugins/opensearch-security/securityconfig.tar.gz
+wazuh/wazuh-dashboard/*.tar.gz
+wazuh/wazuh-manager/logs/
+wazuh/wazuh-manager/queue/db/
+wazuh/wazuh-manager/queue/rids/
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
 
-wazuh-indexer/data/
-wazuh-indexer/logs/
-wazuh-certificates/
-wazuh/certs
-ansible/certs
-
-
-
-# ==============================
-# SYSTEM FILES
-# ==============================
-.DS_Store
-Thumbs.db
-
-# ==============================
-# IDE / EDITORS
-# ==============================
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# ==============================
-# ENV FILES (SENSIBLE)
-# ==============================
-.env
-*.env
+# OS
+.DS_Store
+Thumbs.db
+"@ | Out-File -FilePath .gitignore -Encoding utf8
