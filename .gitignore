@@ -1,7 +1,4 @@
 
-# ==============================
-# DOCKER
-# ==============================
 *.log
 *.pid
 *.sock
@@ -18,36 +15,15 @@ wazuh/**/data/
 wazuh/wazuh-dashboard/*.tar.gz
 wazuh/wazuh-indexer/*.tar.gz
 wazuh/wazuh-indexer/plugins/opensearch-security/securityconfig.tar.gz
-wazuh/wazuh-manager/logs/*
 
-# ==============================
-# OPENSEARCH / INDEXER
-# ==============================
+
 wazuh-indexer/data/
 wazuh-indexer/logs/
 wazuh-certificates/
 wazuh/certs
 ansible/certs
 
-# ==============================
-# LIFERAY
-# ==============================
-liferay/data/
-liferay/logs/
 
-# ==============================
-# KEYCLOAK
-# ==============================
-keycloak/data/
-keycloak/logs/
-
-# ==============================
-# ANSIBLE
-# ==============================
-ansible/*.retry
-ansible/inventory/hosts.backup
-ansible/inventory/hosts.ini
-ansible/playbooks/*.yml
 
 # ==============================
 # SYSTEM FILES
@@ -66,9 +42,3 @@ Thumbs.db
 # ==============================
 .env
 *.env
-
-# ==============================
-# BACKUPS
-# ==============================
-*.bak
-*.backup
