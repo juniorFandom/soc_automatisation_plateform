@@ -1,9 +1,6 @@
 FROM debian:12-slim
-<<<<<<< HEAD
-=======
 
 ENV DEBIAN_FRONTEND=noninteractive
->>>>>>> dev
 
 RUN apt-get update && apt-get install -y \
     tar \
