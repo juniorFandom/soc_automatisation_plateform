@@ -70,6 +70,7 @@ L'architecture de la plateforme est illustrée ci-dessous.
 <img width="799" src="https://github.com/user-attachments/assets/1a39ba97-4a4e-4a46-ae91-1640b74edb6f">
 </p>
 
+![alt text](image.png)
 ---
 
 # Structure du projet
