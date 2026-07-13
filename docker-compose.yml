@@ -4,7 +4,8 @@ services:
   # INDEXER (OPENSEARCH)
   # =========================
   wazuh-indexer:
-    image: indexer_6:latest
+    # image: indexer_6:latest
+    build: ./wazuh/wazuh-indexer
     container_name: wazuh-indexer
     restart: unless-stopped
 
@@ -29,7 +30,7 @@ services:
       - ./wazuh/wazuh-indexer/config/opensearch.yml:/etc/wazuh-indexer/opensearch.yml:ro
 
     networks:
-      wazuh-net:
+      soc-network:
         ipv4_address: 172.25.0.10
 
     healthcheck:
@@ -51,7 +52,7 @@ services:
         condition: service_healthy
 
     networks:
-      wazuh-net:
+      soc-network:
         ipv4_address: 172.25.0.50
 
     entrypoint: >
@@ -67,7 +68,8 @@ services:
   # DASHBOARD
   # =========================
   wazuh-dashboard:
-    image: soc_projet-wazuh-dashboard:latest
+    # image: soc_projet-wazuh-dashboard:latest
+    build: ./wazuh/wazuh-dashboard
     container_name: wazuh-dashboard
     restart: unless-stopped
 
@@ -89,7 +91,7 @@ services:
       - NODE_OPTIONS=--max-old-space-size=2048
 
     networks:
-      wazuh-net:
+      soc-network:
         ipv4_address: 172.25.0.20
 
 
@@ -97,7 +99,8 @@ services:
   # MANAGER + FILEBEAT
   # =========================
   wazuh-manager:
-    image: manager_new_04:latest
+    # image: manager_new_04:latest
+    build: ./wazuh/wazuh-manager
     container_name: wazuh-manager
     restart: unless-stopped
     privileged: true
@@ -129,15 +132,16 @@ services:
         condition: service_healthy
 
     networks:
-      wazuh-net:
+      soc-network:
         ipv4_address: 172.25.0.30
 
 
-  # =========================
-  # ANSIBLE
-  # =========================
+  # ============================================
+  # ANSIBLE (associer a un agent Wazuh installé)
+  # ============================================
   ansible:
-    image: new_ansible:latest
+    # image: new_ansible:latest
+    build: ./ansible
     container_name: ansible
     restart: unless-stopped
     volumes:
@@ -152,15 +156,52 @@ services:
       - WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
       - WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
     networks:
-      wazuh-net:
+      soc-network:
         ipv4_address: 172.25.0.40
 
+
+  # =========================
+  # LIFERAY
+  # =========================
+  liferay:
+    # image: liferay/portal:7.4.3.112-ga112
+    build: ./liferay
+    container_name: liferay
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - .liferay/data:/opt/liferay/data
+      - .liferay/deploy:/opt/liferay/deploy
+      - .liferay/config:/opt/liferay/config
+    
+    networks:
+      soc-network:
+        ipv4_address: 172.25.0.50
+
+  # =========================
+  # KEYCLOAK
+  # =========================
+
+  keycloak:
+    # image: jboss/keycloak:latest
+    build: ./keycloak
+    container_name: keycloak
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    networks:
+      soc-network:
+        ipv4_address: 172.25.0.60
 
 # =========================
 # NETWORKS
 # =========================
 networks:
-  wazuh-net:
+  soc-network:
     driver: bridge
     ipam:
       config:

@@ -16,7 +16,7 @@ name: wazuh-manager
 >>>>>>> dev
 filebeat.inputs:
   - type: log
-    enabled: true
+    enabled: true    
     paths:
       - /var/ossec/logs/alerts/alerts.json
 

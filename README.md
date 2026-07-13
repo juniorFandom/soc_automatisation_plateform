@@ -316,7 +316,7 @@ Elle comprend :
 * l'architecture technique ;
 * les diagrammes UML ;
 * les captures d'écran ;
-* les guides d'installation ;
+* les guides d'installation des differents outils du projet;
 * les procédures d'administration.
 
 ---

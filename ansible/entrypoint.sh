@@ -10,7 +10,7 @@ ansible-galaxy collection list | head -5
 echo "=========================================="
 
 # ============================================
-# Configuration de l'agent Wazuh
+# Configuration, démarrage et test de l'agent Wazuh
 # ============================================
 
 WAZUH_MANAGER_IP="${WAZUH_MANAGER_IP}"
@@ -55,6 +55,6 @@ if [ $# -gt 0 ]; then
     echo "🚀 Exécution: $@"
     exec "$@"
 else
-    echo "✅ Conteneur prêt à recevoir des commandes Ansible"
+    echo "✅ Conteneur prêt "
     tail -f /dev/null
 fi
