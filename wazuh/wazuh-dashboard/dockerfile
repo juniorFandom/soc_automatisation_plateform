@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# COPY opensearch-dashboards-2.11.0-linux-x64.tar.gz /tmp/
-RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/2.11.0/opensearch-dashboards-2.11.0-linux-x64.tar.gz
+#  opensearch-dashboards-2.11.0-linux-x64.tar.gz /tmp/
+RUN wget https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/2.11.0/opensearch-dashboards-2.11.0-linux-x64.tar.gz \
+    -O /tmp/opensearch-dashboards-2.11.0-linux-x64.tar.gz
 
 RUN tar -xzf /tmp/opensearch-dashboards-2.11.0-linux-x64.tar.gz -C /usr/share/ \
     && mv /usr/share/opensearch-dashboards-2.11.0 /usr/share/opensearch-dashboards \
