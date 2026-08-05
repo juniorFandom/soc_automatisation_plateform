@@ -25,6 +25,8 @@ wazuh/wazuh-manager/logs/
 wazuh/wazuh-manager/queue/db/
 wazuh/wazuh-manager/queue/*
 wazuh/certs/
+/ansible/inventory
+/ansible/playbooks
 # Python
 __pycache__/
 *.py[cod]

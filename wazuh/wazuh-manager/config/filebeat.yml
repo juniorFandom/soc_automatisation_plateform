@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ==========================================
 # Nom de l’instance Filebeat
 # ==========================================
@@ -7,85 +6,31 @@ name: wazuh-manager   # Identifie ce Filebeat comme étant celui du Wazuh Manage
 # ==========================================
 # Entrée des logs (sources à collecter)
 # ==========================================
-=======
-name: wazuh-manager
-
-# =========================
-# INPUT WAZUH ALERTS
-# =========================
->>>>>>> dev
 filebeat.inputs:
-  - type: log
-    enabled: true    
+  - type: log # Type de source : logs
+    enabled: true  # active la collecte des logs  
     paths:
-      - /var/ossec/logs/alerts/alerts.json
+      - /var/ossec/logs/alerts/alerts.json # Chemin vers le fichier de logs Wazuh à collecter (format JSON)
 
-<<<<<<< HEAD
-- type: log            # Type de données : logs système
-  enabled: true        # Active la collecte
 
-  paths:
-    - /var/ossec/logs/alerts/alerts.json   # Fichier d’alertes généré par Wazuh
 
 # ==========================================
 # Sortie des logs (destination)
 # ==========================================
-=======
-    json.keys_under_root: true
-    json.add_error_key: true
-    json.message_key: log
-
-
-# =========================
-# OUTPUT : WAZUH INDEXER (OPENSEARCH)
-# =========================
->>>>>>> dev
 output.elasticsearch:
   hosts: ["https://wazuh-indexer:9200"]
 
-<<<<<<< HEAD
-  hosts:
-    - "http://wazuh-indexer:9200"   # Envoi des logs vers l’indexer OpenSearch
-
-# ==========================================
-# Configuration du Dashboard (Kibana / Wazuh Dashboard)
-# ==========================================
-setup.kibana:
-
-  host: "http://wazuh-dashboard:5601"   # Lien vers l’interface de visualisation
-
-# ==========================================
-# Modules Filebeat (désactivés ici)
-# ==========================================
-filebeat.config.modules:
-
-  path: ${path.config}/modules.d/*.yml   # Chemin des modules
-  reload.enabled: false                  # Empêche le rechargement automatique
-
-# ==========================================
-# Gestion des logs internes Filebeat
-# ==========================================
-logging.level: info   # Niveau de log (info = standard)
-
-logging.to_files: true  # Active l’écriture des logs dans des fichiers
-
-logging.files:
-  path: /var/log/filebeat   # Dossier de stockage des logs Filebeat
-  name: filebeat            # Nom du fichier de log
-  keepfiles: 7              # Nombre de fichiers logs à conserver
-  permissions: 0644         # Permissions des fichiers logs
-=======
-  username: admin
+  username: admin # identifiant pour se connecter à Elasticsearch (Wazuh Indexer)
   password: admin
 
   # IMPORTANT : compat OpenSearch / Wazuh
-  allow_older_versions: true
+  allow_older_versions: true 
 
-  ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]
+  ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"] 
   ssl.verification_mode: certificate
 
   # index custom Wazuh
-  index: "wazuh-alerts-%{+yyyy.MM.dd}"
+  index: "wazuh-alerts-%{+yyyy.MM.dd}" # Nom de l’index Elasticsearch où les logs Wazuh seront stockés, avec un suffixe de date pour la rotation des index
 
 
 # =========================
@@ -101,13 +46,13 @@ setup.xpack.enabled: false
 # =========================
 # TEMPLATE INDEX (WAZUH SAFE)
 # =========================
-setup.template.enabled: true
-setup.template.name: "wazuh-alerts"
-setup.template.pattern: "wazuh-alerts-*"
+setup.template.enabled: true # 
+setup.template.name: "wazuh-alerts" 
+setup.template.pattern: "wazuh-alerts-*" 
 
 setup.template.settings:
-  index.number_of_shards: 1
-  index.number_of_replicas: 0
+  index.number_of_shards: 1 
+  index.number_of_replicas: 0 # 
 
 
 # =========================
@@ -121,4 +66,3 @@ xpack.monitoring.enabled: false
 # LOGGING
 # =========================
 logging.level: info
->>>>>>> dev

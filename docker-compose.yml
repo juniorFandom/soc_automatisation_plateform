@@ -152,9 +152,9 @@ services:
     working_dir: /ansible
 
     environment:
-      - WAZUH_MANAGER_IP: ${WAZUH_MANAGER_IP}
-      - WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
-      - WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
+      WAZUH_MANAGER_IP: ${WAZUH_MANAGER_IP}
+      WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
+      WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
     networks:
       soc-network:
         ipv4_address: 172.25.0.40
@@ -174,7 +174,7 @@ services:
       - .liferay/data:/opt/liferay/data
       - .liferay/deploy:/opt/liferay/deploy
       - .liferay/config:/opt/liferay/config
-    
+     
     networks:
       soc-network:
         ipv4_address: 172.25.0.50
@@ -184,15 +184,37 @@ services:
   # =========================
 
   keycloak:
-    # image: jboss/keycloak:latest
-    build: ./keycloak
+    image: quay.io/keycloak/keycloak:25.0.0
+    # build: ./keycloak
     container_name: keycloak
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_USER=${KEYCLOAK_USER}
+      - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
+    volumes:
+      - ./data:/opt/keycloak/data
+      - .config/realm-export.json:/opt/keycloak/data/realm-export.json
+
+    networks:
+      soc-network:
+        ipv4_address: 172.25.0.60
+  
+
+  wazuh-agent:
+    build: ./wazuh-agent
+    container_name: wazuh-agent
+    restart: unless-stopped
+
+    environment:
+      WAZUH_MANAGER_IP: ${WAZUH_MANAGER_IP}
+      WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
+      WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
+
+    depends_on:
+      - wazuh-manager
+
     networks:
       soc-network:
         ipv4_address: 172.25.0.60
