@@ -121,7 +121,7 @@ services:
       - ./wazuh/wazuh-manager/logs:/var/ossec/logs
       - ./wazuh/wazuh-manager/rules/local_rules.xml:/var/ossec/etc/rules/local_rules.xml:ro
       - ./wazuh/certs/manager:/var/ossec/etc/ssl:ro
-      - ./wazuh/wazuh-manager/config/filebeat.yml:/etc/filebeat/filebeat.yml:ro
+      # - ./wazuh/wazuh-manager/config/filebeat.yml:/etc/filebeat/filebeat.yml:ro
       - ./wazuh/certs/root-ca.pem:/etc/filebeat/certs/root-ca.pem:ro
       - ./wazuh/wazuh-manager/scripts/ansible-trigger.sh:/var/ossec/active-response/bin/ansible-trigger.sh:ro
       - ./wazuh/wazuh-manager/config/authd.pass:/var/ossec/etc/authd.pass:ro
@@ -152,9 +152,9 @@ services:
     working_dir: /ansible
 
     environment:
-      WAZUH_MANAGER_IP: ${WAZUH_MANAGER_IP}
-      WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
-      WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
+      WAZUH_MANAGER_IP:${WAZUH_MANAGER_IP}
+      WAZUH_AUTH_PORT:${WAZUH_AUTH_PORT}
+      WAZUH_AGENT_PASSWORD:${WAZUH_AGENT_PASSWORD}
     networks:
       soc-network:
         ipv4_address: 172.25.0.40
@@ -163,43 +163,43 @@ services:
   # =========================
   # LIFERAY
   # =========================
-  liferay:
-    # image: liferay/portal:7.4.3.112-ga112
-    build: ./liferay
-    container_name: liferay
-    restart: unless-stopped
-    ports:
-      - "8081:8080"
-    volumes:
-      - .liferay/data:/opt/liferay/data
-      - .liferay/deploy:/opt/liferay/deploy
-      - .liferay/config:/opt/liferay/config
+  # liferay:
+  #   # image: liferay/portal:7.4.3.112-ga112
+  #   build: ./liferay
+  #   container_name: liferay
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8081:8080"
+  #   volumes:
+  #     - .liferay/data:/opt/liferay/data
+  #     - .liferay/deploy:/opt/liferay/deploy
+  #     - .liferay/config:/opt/liferay/config
      
-    networks:
-      soc-network:
-        ipv4_address: 172.25.0.50
+  #   networks:
+  #     soc-network:
+  #       ipv4_address: 172.25.0.50
 
-  # =========================
-  # KEYCLOAK
-  # =========================
+  # # =========================
+  # # KEYCLOAK
+  # # =========================
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:25.0.0
-    # build: ./keycloak
-    container_name: keycloak
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      - KEYCLOAK_USER=${KEYCLOAK_USER}
-      - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
-    volumes:
-      - ./data:/opt/keycloak/data
-      - .config/realm-export.json:/opt/keycloak/data/realm-export.json
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:25.0.0
+  #   # build: ./keycloak
+  #   container_name: keycloak
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - KEYCLOAK_USER=${KEYCLOAK_USER}
+  #     - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
+  #   volumes:
+  #     - ./data:/opt/keycloak/data
+  #     - .config/realm-export.json:/opt/keycloak/data/realm-export.json
 
-    networks:
-      soc-network:
-        ipv4_address: 172.25.0.60
+  #   networks:
+  #     soc-network:
+  #       ipv4_address: 172.25.0.60
   
 
   wazuh-agent:
@@ -208,16 +208,16 @@ services:
     restart: unless-stopped
 
     environment:
-      WAZUH_MANAGER_IP: ${WAZUH_MANAGER_IP}
-      WAZUH_AUTH_PORT: ${WAZUH_AUTH_PORT}
-      WAZUH_AGENT_PASSWORD: ${WAZUH_AGENT_PASSWORD}
+      WAZUH_MANAGER_IP:${WAZUH_MANAGER_IP}
+      WAZUH_AUTH_PORT:${WAZUH_AUTH_PORT}
+      WAZUH_AGENT_PASSWORD:${WAZUH_AGENT_PASSWORD}
 
     depends_on:
       - wazuh-manager
 
     networks:
       soc-network:
-        ipv4_address: 172.25.0.60
+        ipv4_address: 172.25.0.61
 
 # =========================
 # NETWORKS

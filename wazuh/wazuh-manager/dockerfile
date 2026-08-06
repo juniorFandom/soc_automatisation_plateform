@@ -67,6 +67,12 @@ RUN mkdir -p /etc/filebeat/certs
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+#
+COPY config/filebeat.yml /etc/filebeat/filebeat.yml
+
+RUN chown root:root /etc/filebeat/filebeat.yml \
+    && chmod 644 /etc/filebeat/filebeat.yml
+
 # =========================
 # 9. PORTS WAZUH MANAGER
 # =========================

@@ -3,9 +3,9 @@
 set -e
 
 
-MANAGER=${WAZUH_MANAGER:-wazuh-manager}
-AUTH_PORT=${WAZUH_AUTH_PORT:-1515}
-PASSWORD=${WAZUH_AGENT_PASSWORD}
+MANAGER=$(echo "$WAZUH_MANAGER_IP" | xargs)
+AUTH_PORT=$(echo "$WAZUH_AUTH_PORT" | xargs)
+PASSWORD=$(echo "$WAZUH_AGENT_PASSWORD" | xargs)
 
 
 
